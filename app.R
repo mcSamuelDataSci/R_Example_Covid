@@ -33,28 +33,36 @@ example_trend_plot_function <- function(myCounty="Fresno") {
     tDat <- covid_data %>% filter(county == myCounty)
     
     ggplot(data = tDat, aes(x=year_month, y=Cases)) + 
-    geom_line() +
-    labs(title = myCounty)
+    geom_line(size = 1) +
+    labs(title = myCounty) +
+      # theme_bw() +
+      theme(plot.title = element_text(face = "bold", size = 20, colour = "darkblue"), 
+            axis.title = element_text(face = "bold", size = 18), 
+            axis.text = element_text(size = 16))
 }
 
 #=============================================================================
 
-ui <- fluidPage(
+ui <- fluidPage(theme = "sandstone",
 
     titlePanel("R / R Shiny / Map Example"),
-
-    sidebarLayout(
-        sidebarPanel(
-             selectInput("metric",   # not used yet
-                         "metric:",
-                         choices=c("cases","deaths"), 
-                         selected="deaths")
-        ),
-
-     mainPanel(
-       ggiraphOutput("cmap"),
-       plotOutput("trendjunk")
-        )
+    
+    br(), 
+    
+    selectInput("metric",   # not used yet
+                "metric:",
+                choices=c("cases","deaths"), 
+                selected="deaths"),
+    
+    hr(), 
+    
+    fluidRow(
+      column(width = 1),
+      column(width = 3, 
+             ggiraphOutput("cmap", height = "500px")), 
+      column(width = 7, 
+             plotOutput("trendjunk", height = "500px")), 
+      column(width = 1)
     )
 )
 

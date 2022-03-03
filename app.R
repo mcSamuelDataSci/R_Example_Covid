@@ -8,18 +8,18 @@ library(lubridate)
 
 
 covid_data <- readRDS("covid_data.RDS")
-data_map <- readRDS("data_map.RDS")
+county_map <- readRDS("county_map.RDS")
 
 
 # plotting function to plot trend for selected county
-example_trend_plot_function <- function(myCounty="Fresno") {
+example_trend_plot_function <- function(myCounty="Fresno", myMeasure = "Cases") {
 
     tDat <- covid_data %>% filter(county == myCounty)
     
-    ggplot(data = tDat, aes(x=year_month, y=Cases)) + 
+    ggplot(data = tDat, aes(x=year_month, y=get(myMeasure))) + 
     geom_line(size = 1) +
-    labs(title = myCounty) +
-      # theme_bw() +
+    labs(title = myCounty, x = "Year-Month", y = myMeasure) +
+      theme_bw() +
       theme(plot.title = element_text(face = "bold", size = 20, colour = "darkblue"), 
             axis.title = element_text(face = "bold", size = 18), 
             axis.text = element_text(size = 16))
@@ -35,8 +35,8 @@ ui <- fluidPage(theme = "sandstone",
     
     selectInput("metric",   # not used yet
                 "metric:",
-                choices=c("cases","deaths"), 
-                selected="deaths"),
+                choices=c("Cases","Deaths"), 
+                selected="Deaths"),
     
     hr(), 
     
@@ -54,7 +54,7 @@ server <- function(input, output) {
 
         output$cmap <- renderggiraph({
             
-        g <- ggplot(data_map) +
+        g <- ggplot(county_map) +
                 geom_sf(size=3,col="black") +
                 geom_sf_interactive(aes(tooltip = county,
                                         data_id = county),
@@ -71,7 +71,11 @@ server <- function(input, output) {
         selectedCounty <- reactive(input$cmap_selected)
         myCounty <- reactive( if ( is.null( selectedCounty() ) ) "Fresno" else input$cmap_selected )
         
-        trendStep        <- reactive(example_trend_plot_function( myCounty() ))
+        trendStep        <- reactive(example_trend_plot_function( myCounty = myCounty(), myMeasure = input$metric ))
+        
+        observe({
+          print(input$metric)
+        })
         
         output$trendjunk <- renderPlot(trendStep())
                            

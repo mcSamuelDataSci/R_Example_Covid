@@ -8,9 +8,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-https://public.tableau.com/app/profile/ca.open.data/viz/COVID-19CasesDashboardv2_0/CaseStatistics
-
-
 
 
 

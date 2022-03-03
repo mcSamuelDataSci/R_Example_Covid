@@ -7,7 +7,8 @@ library(tigris); options(tigris_class = "sf")
 library(lubridate)
 
 
-data_map.RDS <- readRDS("data_map.RDS")
+covid_data <- readRDS("covid_data.RDS")
+data_map <- readRDS("data_map.RDS")
 
 
 # plotting function to plot trend for selected county
@@ -72,13 +73,8 @@ server <- function(input, output) {
         
         trendStep        <- reactive(example_trend_plot_function( myCounty() ))
         
-        
-        
         output$trendjunk <- renderPlot(trendStep())
-                           #  DOES NOT WORK:    
-                           #  example_trend_plot_function(input$cmap_selected)
-                           # NOR DOES THIS:
-                           # trendStep()
+                           
         
 }
 

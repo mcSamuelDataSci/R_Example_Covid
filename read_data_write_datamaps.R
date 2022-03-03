@@ -34,6 +34,7 @@ covid_data <-  covid_data0 %>%
 # Join the simple feature map file and the data
 data_map <- left_join(county_map, covid_data, by= "county")
 
-saveRDS(data_map,"data_map.RDS")
+saveRDS(data_map, "data_map.RDS")
+saveRDS(covid_data, "covid_data.RDS")
 
 

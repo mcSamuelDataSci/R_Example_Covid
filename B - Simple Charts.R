@@ -8,7 +8,7 @@ library(readr) # tools for reading all sorts of data into R
 library(tidyr) # "tidyverse" package mainly used to convert between different data formats (long vs wide)
 library(stringr)
 
-# URL for California COVID-19 data on the CHHS Open Data Portal
+# URL for California COVID-19 data on the CHHS Open Data Portal. NOTE: This data reflects past 30 days
 covid_re_url <- "https://data.chhs.ca.gov/dataset/f88f9d7f-635d-4334-9dac-4ce773afe4e5/resource/b500dae2-9e58-428e-b125-82c7e9b07abb/download/covid19demographicratecumulative.csv"
 
 # Read the Covid data directly from the Open Data Portal. 
@@ -17,12 +17,6 @@ covid_re     <- read_csv(covid_re_url) %>%
   filter(county == "California", 
          demographic_set == "race_ethnicity", 
          !demographic_set_category %in% c("Other", "Unknown")) # Filter out 'Other' and 'Unknown' race groups 
-
-
-
-# maybe a histogram?
-# maybe a scatterplot?
-  
 
 
 # Filter on case data
@@ -102,7 +96,7 @@ ggplot(data = covid_re, aes(x = demographic_set_category, y = metric_value_per_1
   geom_bar(stat = 'identity', fill = "darkblue", colour = 'black') +
   geom_text(aes(label = paste0("N = ", scales::comma(metric_value, accuracy = 1))), vjust = 1, color = 'white') +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) +
-  labs(title = "COVID-19 Case, Death, and Test Rate per 100k Population by Race/Ethnicity in CA", 
+  labs(title = "COVID-19 Rates per 100k Population by Race/Ethnicity in CA", 
        x = "Race/Ethnicity", 
        y = "Rate per 100k Population") +
   facet_grid(rows = vars(metric), scales = "free") + # Forms a matrix of panels defined by faceting variable (in this case, by metric variable)

@@ -18,10 +18,14 @@ R Markdown is a file format for making dynamic documents with R. An R Markdown d
 
 When you click the **Knit** button, a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
 
+## Specify county
 
-## Load neccesary packages, and read in data
-
+The data in the charts below are for the entire state. County-level data are also available by changing the **select_county** parameter below.
 ```{r}
+select_county <- 'California'
+```
+
+```{r, echo = FALSE}
 
 # Load packages
 library(dplyr)
@@ -57,18 +61,18 @@ county_pop <- readRDS('county_population.RDS')
 ```
 
 
-## COVID-19 Case, Death, and Test Rates by R/E in Fresno County
-```{r}
+## COVID-19 30-Day Case, Death, and Test Rates by R/E in `r select_county`
+```{r, echo=FALSE}
 
 # Filter on Fresno county
 covid_re_fresno <- covid_re_data %>%
-  filter(county == "Fresno")
+  filter(county == select_county)
 
 ggplot(data = covid_re_fresno, aes(x = demographic_set_category, y = metric_value_per_100k)) + 
   geom_bar(stat = 'identity', fill = "darkblue", colour = 'black') +
   geom_text(aes(label = paste0("N = ", scales::comma(metric_value, accuracy = 1))), vjust = 1, color = 'white') +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
-  labs(title = "COVID-19 Rates by Race/Ethnicity in Fresno County", 
+  labs(title = paste0("COVID-19 Rates by Race/Ethnicity in ", select_county, ", Past 30 days"), 
        x = "Race/Ethnicity", 
        y = "Rate per 100k Population") +
   facet_grid(rows = vars(metric), scales = "free") + # Forms a matrix of panels defined by faceting variable (in this case, by metric variable)
@@ -81,16 +85,16 @@ ggplot(data = covid_re_fresno, aes(x = demographic_set_category, y = metric_valu
 ```
 
 
-## Trend of COVID-19 Cases in Fresno County
-```{r}
+## Trend of COVID-19 Cases in `r select_county`
+```{r, echo=FALSE}
 
 # Filter on Fresno county
 covid_data_fresno <- covid_data %>%
-  filter(county == "Fresno")
+  filter(county == select_county)
 
 ggplot(data = covid_data_fresno, aes(x = year_month, y = Cases)) +
   geom_line(size = 1, colour = "darkblue") +
-  labs(title = "Trend of COVID-19 Cases in Fresno County", 
+  labs(title = paste0("Trend of COVID-19 Cases in ", select_county), 
        x = "Year-Month", 
        y = "Number of COVID-19 Cases") +
   theme_bw() + 
@@ -100,16 +104,16 @@ ggplot(data = covid_data_fresno, aes(x = year_month, y = Cases)) +
 
 ```
 
-## Trend of COVID-19 Deaths in Fresno County
-```{r}
+## Trend of COVID-19 Deaths in `r select_county`
+```{r, echo=FALSE}
 
 # Filter on fresno county
 covid_data_fresno <- covid_data %>%
-  filter(county == "Fresno")
+  filter(county == select_county)
 
 ggplot(data = covid_data_fresno, aes(x = year_month, y = Deaths)) +
   geom_line(size = 1, colour = "darkblue") +
-  labs(title = "Trend of COVID-19 Deaths in Fresno County", 
+  labs(title = paste0("Trend of COVID-19 Deaths in ", select_county), 
        x = "Year-Month", 
        y = "Number of COVID-19 Deaths") +
   theme_bw() + 
@@ -121,7 +125,7 @@ ggplot(data = covid_data_fresno, aes(x = year_month, y = Deaths)) +
 
 
 ## County Map - COVID-19 Case and Death Rates
-```{r}
+```{r, echo=FALSE}
 
 # Sums up total # of cases and deaths within each county, and calculate case and death rates
 covid_data_county <- covid_data %>%
@@ -132,7 +136,7 @@ covid_data_county <- covid_data %>%
   mutate(`Case Rate` = 100000 * Cases / population, 
          `Death Rate` = 100000 * Deaths / population)
 
-# Merge
+# Merge data above, and data for mapping
 map_df <- county_map %>%
   left_join(covid_data_county, by = "county") 
 

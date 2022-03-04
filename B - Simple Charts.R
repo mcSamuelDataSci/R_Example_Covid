@@ -33,16 +33,16 @@ covid_dat_cases <- covid_dat %>% filter(metric == "cases") %>% # Filter on cases
 
 
 # Produce simple bar chart of case rate per 100k population by race/ethnicity
-barplot(covid_dat_cases$metric_value_per_100k)
+barplot(covid_dat_cases$case_rate)
 
 
 # Add race/ethnicity labels
-barplot(covid_dat_cases$metric_value_per_100k, 
-        names.arg = covid_dat_cases$demographic_set_category)
+barplot(covid_dat_cases$case_rate, 
+        names.arg = covid_dat_cases$race)
 
 # Add titles for each axis, and the plot
-barplot(covid_dat_cases$metric_value_per_100k, 
-        names.arg = covid_dat_cases$demographic_set_category, 
+barplot(covid_dat_cases$case_rate, 
+        names.arg = covid_dat_cases$race, 
         main = "COVID-19 Rate by Race/Ethnicity Past 30 Days", 
         xlab = "Race/Ethnicity", 
         ylab = "Case Rate per 100k Population")
@@ -52,7 +52,7 @@ barplot(covid_dat_cases$metric_value_per_100k,
 ############################
 
 
-ggplot(data = covid_dat_cases, aes(x = demographic_set_category, y = metric_value_per_100k)) +
+ggplot(data = covid_dat_cases, aes(x = race, y = case_rate)) +
        geom_bar(stat = 'identity') 
 
 
@@ -60,7 +60,7 @@ ggplot(data = covid_dat_cases, aes(x = demographic_set_category, y = metric_valu
 # Charts below are creating using 'ggplot2', a popular and powerful open-sourced data visualization R package
 
 # Simple bar chart of case rate per 100k population by race/ethnicity, using ggplot2
-ggplot(data = covid_dat_cases, aes(x = demographic_set_category, y = metric_value_per_100k)) +
+ggplot(data = covid_dat_cases, aes(x = race, y = case_rate)) +
   geom_bar(stat = 'identity') +
   labs(title = "COVID-19 Rate by Race/Ethnicity Past 30 Days", 
        x = "Race/Ethnicity", 
@@ -68,7 +68,7 @@ ggplot(data = covid_dat_cases, aes(x = demographic_set_category, y = metric_valu
 
 
 # Same chart, but as a horizontal bar chart
-ggplot(data = covid_dat_cases, aes(x = demographic_set_category, y = metric_value_per_100k)) +
+ggplot(data = covid_dat_cases, aes(x = race, y = case_rate)) +
   geom_bar(stat = 'identity') +
   coord_flip() + # This rotates the chart
   labs(title = "COVID-19 Rate by Race/Ethnicity Past 30 Days", 
@@ -86,9 +86,9 @@ ggplot(data = covid_dat_cases, aes(x = demographic_set_category, y = metric_valu
 
 library(stringr) # package needed for character string manipulation (e.g. for wrapping text)
 
-ggplot(data = covid_dat_cases, aes(x = demographic_set_category, y = metric_value_per_100k)) +
+ggplot(data = covid_dat_cases, aes(x = race, y = case_rate)) +
   geom_bar(stat = 'identity', fill = "darkblue", colour = 'black') + # Add bars; Specify bar color and border color
-  geom_text(aes(label = paste0("N = ", scales::comma(metric_value))), vjust = 1, color = 'white') + # Add bar text labels
+  geom_text(aes(label = paste0("N = ", scales::comma(cases))), vjust = 1, color = 'white') + # Add bar text labels
   scale_x_discrete(labels = function(x) str_wrap(x, width = 15)) + # Wrap Race/Ethnic labels
   labs(title = "COVID-19 Rate by Race/Ethnicity Past 30 Days", 
        x = "Race/Ethnicity", 

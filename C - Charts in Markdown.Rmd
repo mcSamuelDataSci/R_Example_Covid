@@ -18,15 +18,15 @@ R Markdown is a file format for making dynamic documents with R. An R Markdown d
 
 When you click the **Knit** button, a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
 
-```{r}
+```{r, echo=FALSE}
 
 # Load packages
-library(dplyr)
-library(ggplot2)
-library(readr)
-library(cowplot)
-library(stringr)
-library(tigris); options(tigris_class = "sf")
+library(dplyr) # core "tidyverse" package for data manipulation
+library(ggplot2) # data visualization package
+library(cowplot) # ggplot add-on. Allows you to combine multiple ggplot objects into one figure
+library(stringr) # package needed for character string manipulation (e.g. for wrapping text)
+library(tigris) # package for reading "tiger" "shape files" for making maps
+options(tigris_class = "sf") # causes tigris to read files in the "simple features" format
 
 ```
 
@@ -59,6 +59,7 @@ county_pop <- readRDS('county_population.RDS')
 ## COVID-19 30-Day Case, Death, and Test Rates by R/E in `r select_county`
 ```{r, echo=FALSE}
 
+# Create plot
 ggplot(data = covid_re_county, aes(x = demographic_set_category, y = metric_value_per_100k)) + 
   geom_bar(stat = 'identity', fill = "darkblue", colour = 'black') +
   geom_text(aes(label = paste0("N = ", scales::comma(metric_value, accuracy = 1))), vjust = 1, color = 'white') +
@@ -83,6 +84,7 @@ ggplot(data = covid_re_county, aes(x = demographic_set_category, y = metric_valu
 covid_data_county <- covid_data %>%
   filter(county == select_county)
 
+# Create plot
 ggplot(data = covid_data_county, aes(x = year_month, y = Cases)) +
   geom_line(size = 1, colour = "darkblue") +
   labs(title = paste0("Trend of COVID-19 Cases in ", select_county), 
@@ -102,6 +104,7 @@ ggplot(data = covid_data_county, aes(x = year_month, y = Cases)) +
 covid_data_county <- covid_data %>%
   filter(county == select_county)
 
+# Create plot
 ggplot(data = covid_data_county, aes(x = year_month, y = Deaths)) +
   geom_line(size = 1, colour = "darkblue") +
   labs(title = paste0("Trend of COVID-19 Deaths in ", select_county), 
@@ -118,7 +121,7 @@ ggplot(data = covid_data_county, aes(x = year_month, y = Deaths)) +
 ## County Map - COVID-19 Case and Death Rates
 ```{r, echo=FALSE}
 
-# Sums up total # of cases and deaths within each county, and calculate case and death rates
+# Sums up total # of cases and deaths within each county, and calculates case and death rates
 covid_data_county <- covid_data %>%
   group_by(county) %>%
   summarise(Cases = sum(Cases), 
@@ -145,129 +148,3 @@ death_rate_map <- ggplot(map_df) +
 plot_grid(case_rate_map, NULL, death_rate_map, nrow = 1, rel_widths = c(0.45, 0.10, 0.45))
 
 ```
-
-<!-- ```{r} -->
-<!-- library(dplyr) -->
-<!-- library(ggplot2) -->
-<!-- library(readr) -->
-
-<!-- covid_re_url <- "https://data.chhs.ca.gov/dataset/f88f9d7f-635d-4334-9dac-4ce773afe4e5/resource/b500dae2-9e58-428e-b125-82c7e9b07abb/download/covid19demographicratecumulative.csv" -->
-
-<!-- covid_re     <- read_csv(covid_re_url) %>%   -->
-<!--                    filter(county == "California", demographic_set == "race_ethnicity") -->
-
-
-<!-- # simplest poss bar.... -->
-
-
-<!-- ggplot(data=covid_re, aes(x=demographic_set_category, y=metric_value_per_100k)      ) + geom_bar(stat = "identity") + -->
-<!--    facet_grid(rows=vars(metric), scales = "free") -->
-
-
-
-<!-- covid_re_2 <- covid_re %>% select(metric, demographic_set_category,   -->
-<!--                                   N = metric_value, -->
-<!--                                   Rate = metric_value_per_100k)  %>% -->
-<!--                pivot_longer(cols=N:Rate) -->
-
-<!-- ggplot(data=covid_re_2, aes(x=demographic_set_category, y=value)      ) + geom_bar(stat = "identity") + -->
-<!--    facet_grid(rows=vars(metric), cols=vars(name), scales = "free") -->
-
-
-
-
-<!-- ``` -->
-
-
-<!-- ```{r} -->
-
-
-
-
-<!-- library(dplyr) -->
-<!-- library(readr) -->
-<!-- library(summarytools) -->
-<!-- library(ggplot2) -->
-<!-- library(tidyr) -->
-
-
-<!-- covid_re_url <- "https://data.chhs.ca.gov/dataset/f88f9d7f-635d-4334-9dac-4ce773afe4e5/resource/b500dae2-9e58-428e-b125-82c7e9b07abb/download/covid19demographicratecumulative.csv" -->
-<!-- covid_re     <- read_csv(covid_re_url) %>%  filter(county == "California", demographic_set == "race_ethnicity") -->
-
-
-<!-- ggplot(data = covid_re, aes(x=demographic_set_category,y=metric_value_per_100k, fill=demographic_set_category)) + geom_bar(stat="identity") + facet_grid(rows=vars(metric), scales="free") -->
-
-
-
-<!-- covidODP <- "https://data.chhs.ca.gov/dataset/f333528b-4d38-4814-bebb-12db1f10f535/resource/046cdd2b-31e5-4d34-9ed3-b48cdbc4be7a/download/covid19cases_test.csv" -->
-
-<!-- covid_data <- read_csv(covidODP) -->
-
-
-
-
-
-
-<!-- covid_data_ca <- covid_data %>%  -->
-<!--                   filter(area == "California") %>% -->
-<!--                   select(population, date, cases, deaths) -->
-
-
-
-
-<!-- ggplot(data = covid_data_ca, aes(x=date,y=cases)) + geom_line() -->
-<!-- ggplot(data = covid_data_ca, aes(x=date,y=cases)) + geom_bar(stat="identity") -->
-
-
-
-<!-- covid_data_ca <- covid_data_ca %>% pivot_longer(cols=cases:deaths) -->
-
-<!-- ggplot(data = covid_data_ca, aes(x=date,y=value, col=name)) + geom_line() -->
-
-
-<!-- freq(covid_data$area) -->
-<!-- ``` -->
-
-
-
-<!-- ```{r} -->
-
-<!-- server <- function(input, output) { -->
-
-<!--         output$cmap <- renderggiraph({ -->
-
-<!--             g <- ggplot(map.data) + -->
-<!--                 geom_sf() + -->
-<!--                 geom_sf_interactive(aes(tooltip = county, -->
-<!--                                         data_id = county), -->
-<!--                                     size = 0.5) + -->
-<!--                 theme(axis.line=element_blank(), -->
-<!--                       axis.text.x=element_blank(), -->
-<!--                       axis.text.y=element_blank(), -->
-<!--                       axis.ticks=element_blank(), -->
-<!--                       axis.title.x=element_blank(), -->
-<!--                       axis.title.y=element_blank(), -->
-<!--                       legend.position="none", -->
-<!--                       panel.background=element_blank(), -->
-<!--                       panel.border=element_blank(), -->
-<!--                       panel.grid.major=element_line(colour = "transparent"), -->
-<!--                       panel.grid.minor=element_blank(), -->
-<!--                       plot.background=element_blank()) -->
-
-<!--             ggiraph(code = print(g), -->
-<!--                     height_svg = 8, -->
-<!--                     selection_type = "single", -->
-<!--                     hover_css = "cursor:pointer;fill:blue;stroke:blue;") -->
-
-<!--         }) -->
-
-
-<!-- } -->
-
-
-
-<!-- ``` -->
-
-
-
-

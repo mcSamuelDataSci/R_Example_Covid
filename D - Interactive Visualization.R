@@ -1,21 +1,17 @@
 library(shiny)
-library(dplyr)
-library(readr)
-library(ggplot2)
-library(ggiraph)
-library(tigris); options(tigris_class = "sf")
-library(lubridate)
+library(dplyr) # core "tidyverse" package for data manipulation
+library(readr) # tools for reading all sorts of data into R
+library(ggplot2) # data visualization package
+library(ggiraph) # Tool to create dynamic ggplot graphs
+library(tigris) # package for reading "tiger" "shape files" for making maps
+options(tigris_class = "sf") # causes tigris to read files in the "simple features" format
+library(lubridate) # makes working with dates easy
 
-
+# Read in California COVID-19 data 
 covid_data <- readRDS("covid_data.RDS")
+
+# Read in data for mapping
 county_map <- readRDS("county_map.RDS")
-
-
-covid_data_now <- covid_data %>%
-                   group_by(county) %>%
-                   slice(which.max(year_month))
-
-
 
 # plotting function to plot trend for selected county
 example_trend_plot_function <- function(myCounty="Fresno", myMeasure = "Cases") {
@@ -78,10 +74,6 @@ server <- function(input, output) {
         myCounty <- reactive( if ( is.null( selectedCounty() ) ) "Fresno" else input$cmap_selected )
         
         trendStep        <- reactive(example_trend_plot_function( myCounty = myCounty(), myMeasure = input$metric ))
-        
-        observe({
-          print(input$metric)
-        })
         
         output$trendjunk <- renderPlot(trendStep())
                            

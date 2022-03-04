@@ -33,7 +33,7 @@ covid_data <-  covid_data0 %>%
 
 #=============================================================================
 
-# URL for California COVID-19 race/ethnicity data on the CHHS Open Data Portal
+# URL for California COVID-19 race/ethnicity data on the CHHS Open Data Portal. NOTE: This data reflects past 30 days
 covid_re_url <- "https://data.chhs.ca.gov/dataset/f88f9d7f-635d-4334-9dac-4ce773afe4e5/resource/b500dae2-9e58-428e-b125-82c7e9b07abb/download/covid19demographicratecumulative.csv"
 
 # Read the Covid data directly from the Open Data Portal. 

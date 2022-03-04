@@ -64,11 +64,11 @@ county_pop <- readRDS('county_population.RDS')
 ## COVID-19 30-Day Case, Death, and Test Rates by R/E in `r select_county`
 ```{r, echo=FALSE}
 
-# Filter on Fresno county
-covid_re_fresno <- covid_re_data %>%
+# Filter on selected county
+covid_re_county <- covid_re_data %>%
   filter(county == select_county)
 
-ggplot(data = covid_re_fresno, aes(x = demographic_set_category, y = metric_value_per_100k)) + 
+ggplot(data = covid_re_county, aes(x = demographic_set_category, y = metric_value_per_100k)) + 
   geom_bar(stat = 'identity', fill = "darkblue", colour = 'black') +
   geom_text(aes(label = paste0("N = ", scales::comma(metric_value, accuracy = 1))), vjust = 1, color = 'white') +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
@@ -88,11 +88,11 @@ ggplot(data = covid_re_fresno, aes(x = demographic_set_category, y = metric_valu
 ## Trend of COVID-19 Cases in `r select_county`
 ```{r, echo=FALSE}
 
-# Filter on Fresno county
-covid_data_fresno <- covid_data %>%
+# Filter on selected county
+covid_data_county <- covid_data %>%
   filter(county == select_county)
 
-ggplot(data = covid_data_fresno, aes(x = year_month, y = Cases)) +
+ggplot(data = covid_data_county, aes(x = year_month, y = Cases)) +
   geom_line(size = 1, colour = "darkblue") +
   labs(title = paste0("Trend of COVID-19 Cases in ", select_county), 
        x = "Year-Month", 
@@ -107,11 +107,11 @@ ggplot(data = covid_data_fresno, aes(x = year_month, y = Cases)) +
 ## Trend of COVID-19 Deaths in `r select_county`
 ```{r, echo=FALSE}
 
-# Filter on fresno county
-covid_data_fresno <- covid_data %>%
+# Filter on selected county
+covid_data_county <- covid_data %>%
   filter(county == select_county)
 
-ggplot(data = covid_data_fresno, aes(x = year_month, y = Deaths)) +
+ggplot(data = covid_data_county, aes(x = year_month, y = Deaths)) +
   geom_line(size = 1, colour = "darkblue") +
   labs(title = paste0("Trend of COVID-19 Deaths in ", select_county), 
        x = "Year-Month", 

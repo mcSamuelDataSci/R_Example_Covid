@@ -18,14 +18,7 @@ R Markdown is a file format for making dynamic documents with R. An R Markdown d
 
 When you click the **Knit** button, a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
 
-## Specify county
-
-The data in the charts below are for the entire state. County-level data are also available by changing the **select_county** parameter below.
 ```{r}
-select_county <- 'California'
-```
-
-```{r, echo = FALSE}
 
 # Load packages
 library(dplyr)
@@ -35,38 +28,36 @@ library(cowplot)
 library(stringr)
 library(tigris); options(tigris_class = "sf")
 
+```
+
+## Specify county
+
+The data in the charts below are for the entire state. County-level data are also available by changing the **select_county** parameter below.
+```{r}
+select_county <- 'California'
+
+# COVID-19 Race/Ethnicity data, filtered on the county value assigned to "select_county"
+covid_re_county <- readRDS('covid_re_data.RDS') %>%
+  filter(county == select_county)
+```
+
+```{r, echo = FALSE}
+
 
 # California COVID-19 data 
 covid_data <- readRDS('covid_data.RDS')
-
-# California COVID-19 Race/Ethnicity data
-covid_re_data <- readRDS('covid_re_data.RDS')
 
 # Data for mapping counties
 county_map <- readRDS('county_map.RDS')
 
 # County Population Data
 county_pop <- readRDS('county_population.RDS')
-
-# county == "Fresno"
-# 
-# same race bar chart   
-# 
-# trend chartr
-# 
-# map with county rates
-# 
-# add case and death rates to Shiny map?
     
 ```
 
 
 ## COVID-19 30-Day Case, Death, and Test Rates by R/E in `r select_county`
 ```{r, echo=FALSE}
-
-# Filter on selected county
-covid_re_county <- covid_re_data %>%
-  filter(county == select_county)
 
 ggplot(data = covid_re_county, aes(x = demographic_set_category, y = metric_value_per_100k)) + 
   geom_bar(stat = 'identity', fill = "darkblue", colour = 'black') +

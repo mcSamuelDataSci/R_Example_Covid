@@ -1537,13 +1537,24 @@ Word documents. For more details on using R Markdown see <a href="http://rmarkdo
 <p>When you click the <strong>Knit</strong> button, a document will be
 generated that includes both content as well as the output of any
 embedded R code chunks within the document.</p>
+<pre class="r"><code># Load packages
+library(dplyr)
+library(ggplot2)
+library(readr)
+library(cowplot)
+library(stringr)
+library(tigris); options(tigris_class = &quot;sf&quot;)</code></pre>
 </div>
 <div id="specify-county" class="section level2">
 <h2>Specify county</h2>
 <p>The data in the charts below are for the entire state. County-level
 data are also available by changing the <strong>select_county</strong>
 parameter below.</p>
-<pre class="r"><code>select_county &lt;- &#39;California&#39;</code></pre>
+<pre class="r"><code>select_county &lt;- &#39;California&#39;
+
+# COVID-19 Race/Ethnicity data, filtered on the county value assigned to &quot;select_county&quot;
+covid_re_county &lt;- readRDS(&#39;covid_re_data.RDS&#39;) %&gt;%
+  filter(county == select_county)</code></pre>
 </div>
 <div id="covid-19-30-day-case-death-and-test-rates-by-re-in-california" class="section level2">
 <h2>COVID-19 30-Day Case, Death, and Test Rates by R/E in

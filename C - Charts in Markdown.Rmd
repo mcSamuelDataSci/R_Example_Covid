@@ -8,6 +8,42 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
+```{r}
+
+
+
+
+
+county == "Fresno"
+
+
+
+same race bar chart   
+
+
+
+trend chartr
+
+
+
+map with county rates
+
+
+
+
+
+
+
+
+add case and death rates to Shiny map?
+    
+    
+
+
+
+
+
+```
 
 
 

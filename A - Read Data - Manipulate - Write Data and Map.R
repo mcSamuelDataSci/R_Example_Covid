@@ -30,7 +30,6 @@ covid_data <-  covid_data0 %>%
       summarize(Cases  = sum(cases),
                 Deaths = sum(deaths))
 
-
 saveRDS(county_map, "county_map.RDS")
 saveRDS(covid_data, "covid_data.RDS")
 

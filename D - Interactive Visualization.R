@@ -11,6 +11,12 @@ covid_data <- readRDS("covid_data.RDS")
 county_map <- readRDS("county_map.RDS")
 
 
+covid_data_now <- covid_data %>%
+                   group_by(county) %>%
+                   slice(which.max(year_month))
+
+
+
 # plotting function to plot trend for selected county
 example_trend_plot_function <- function(myCounty="Fresno", myMeasure = "Cases") {
 

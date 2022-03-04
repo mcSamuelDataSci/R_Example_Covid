@@ -16,28 +16,31 @@ covid_re     <- read_csv(covid_re_url) %>%
 
 
 
-
-
-
-maybe a histogram?
-maybe a scatterplot?
+# maybe a histogram?
+# maybe a scatterplot?
   
 
 
-# Filter on cases
+# "Clean up"  the dataset a bit using "tidyverse" approach
 case_data <- covid_re %>% 
-  filter(metric == "cases", 
-         !demographic_set_category %in% c("Other", "Unknown"))
+  filter(metric == "cases",    # Filter on cases
+         !demographic_set_category %in% c("Other", "Unknown")) # filter out some race groups
+
+
+##############
+
+# Some simple plotting using **BASE R***
+
 
 # Produce simple bar chart of case rate per 100k population by race/ethnicity
 barplot(case_data$metric_value_per_100k)
 
 
-# Let's add race/ethnicity labels
+# Add race/ethnicity labels
 barplot(case_data$metric_value_per_100k, 
         names.arg = case_data$demographic_set_category)
 
-# Now let's add titles for each axis, and the plot
+# Add titles for each axis, and the plot
 barplot(case_data$metric_value_per_100k, 
         names.arg = case_data$demographic_set_category, 
         main = "COVID-19 Case Rate per 100k Population by Race/Ethnicity in CA", 
@@ -46,6 +49,11 @@ barplot(case_data$metric_value_per_100k,
 
 
 # The charts above were created using base R commands.
+
+############################
+
+
+
 # Add note here about ggplot2
 
 # Simple bar chart of case rate per 100k population by race/ethnicity, using ggplot2
@@ -64,6 +72,9 @@ ggplot(data = case_data, aes(x = demographic_set_category, y = metric_value_per_
        x = "Race/Ethnicity", 
        y = "Case Rate per 100k Population")
 
+
+
+# This one
 # Add # of case as text labels inside each bar
 ggplot(data = case_data, aes(x = demographic_set_category, y = metric_value_per_100k)) +
   geom_bar(stat = 'identity') +
@@ -75,7 +86,7 @@ ggplot(data = case_data, aes(x = demographic_set_category, y = metric_value_per_
 
 
 
-
+# this two
 ggplot(data=covid_re, aes(x=demographic_set_category, y=metric_value_per_100k)      ) + geom_bar(stat = "identity") +
   facet_grid(rows=vars(metric), scales = "free")
 
@@ -89,6 +100,8 @@ covid_re_2 <- covid_re %>% select(metric, demographic_set_category,
                                   Rate = metric_value_per_100k)  %>%
   pivot_longer(cols=N:Rate)
 
+
+## this three
 ggplot(data=covid_re_2, aes(x=demographic_set_category, y=value)      ) + geom_bar(stat = "identity") +
   facet_grid(rows=vars(metric), cols=vars(name), scales = "free")
 

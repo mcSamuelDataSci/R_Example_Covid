@@ -1,173 +1,277 @@
 ---
-title: "Untitled"
-output: html_document
+title: "Charts in RMarkdown"
+author: "Michael C. Samuel, DrPH"
+output: 
+  html_document:
+    theme: sandstone
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = F, message = F, fig.width = 9, fig.height = 7)
 ```
 
+## About R Markdown
+
+R Markdown is a file format for making dynamic documents with R. An R Markdown document is written in markdown (an easy-to-write plain text format) and contains chunks of embedded R code. R Markdown supports dozens of static and dynamic output formats including HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button, a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
+
+
+## Load neccesary packages, and read in data
 
 ```{r}
 
-
-
-
-
-county == "Fresno"
-
-
-
-same race bar chart   
-
-
-
-trend chartr
-
-
-
-map with county rates
-
-
-
-
-
-
-
-
-add case and death rates to Shiny map?
-    
-    
-
-
-
-
-
-```
-
-
-
-```{r}
+# Load packages
 library(dplyr)
 library(ggplot2)
 library(readr)
-
-covid_re_url <- "https://data.chhs.ca.gov/dataset/f88f9d7f-635d-4334-9dac-4ce773afe4e5/resource/b500dae2-9e58-428e-b125-82c7e9b07abb/download/covid19demographicratecumulative.csv"
-
-covid_re     <- read_csv(covid_re_url) %>%  
-                   filter(county == "California", demographic_set == "race_ethnicity")
+library(cowplot)
+library(stringr)
+library(tigris); options(tigris_class = "sf")
 
 
-# simplest poss bar....
+# California COVID-19 data 
+covid_data <- readRDS('covid_data.RDS')
 
+# California COVID-19 Race/Ethnicity data
+covid_re_data <- readRDS('covid_re_data.RDS')
 
-ggplot(data=covid_re, aes(x=demographic_set_category, y=metric_value_per_100k)      ) + geom_bar(stat = "identity") +
-   facet_grid(rows=vars(metric), scales = "free")
+# Data for mapping counties
+county_map <- readRDS('county_map.RDS')
 
+# County Population Data
+county_pop <- readRDS('county_population.RDS')
 
-
-covid_re_2 <- covid_re %>% select(metric, demographic_set_category,  
-                                  N = metric_value,
-                                  Rate = metric_value_per_100k)  %>%
-               pivot_longer(cols=N:Rate)
-
-ggplot(data=covid_re_2, aes(x=demographic_set_category, y=value)      ) + geom_bar(stat = "identity") +
-   facet_grid(rows=vars(metric), cols=vars(name), scales = "free")
-
-
-
-
-```
-
-
-```{r}
-
-
-
-
-library(dplyr)
-library(readr)
-library(summarytools)
-library(ggplot2)
-library(tidyr)
-
-
-covid_re_url <- "https://data.chhs.ca.gov/dataset/f88f9d7f-635d-4334-9dac-4ce773afe4e5/resource/b500dae2-9e58-428e-b125-82c7e9b07abb/download/covid19demographicratecumulative.csv"
-covid_re     <- read_csv(covid_re_url) %>%  filter(county == "California", demographic_set == "race_ethnicity")
-
-
-ggplot(data = covid_re, aes(x=demographic_set_category,y=metric_value_per_100k, fill=demographic_set_category)) + geom_bar(stat="identity") + facet_grid(rows=vars(metric), scales="free")
-
-
-
-covidODP <- "https://data.chhs.ca.gov/dataset/f333528b-4d38-4814-bebb-12db1f10f535/resource/046cdd2b-31e5-4d34-9ed3-b48cdbc4be7a/download/covid19cases_test.csv"
-
-covid_data <- read_csv(covidODP)
-
-
-
-
-
-
-covid_data_ca <- covid_data %>% 
-                  filter(area == "California") %>%
-                  select(population, date, cases, deaths)
-                    
-
-
-
-ggplot(data = covid_data_ca, aes(x=date,y=cases)) + geom_line()
-ggplot(data = covid_data_ca, aes(x=date,y=cases)) + geom_bar(stat="identity")
-
-
-
-covid_data_ca <- covid_data_ca %>% pivot_longer(cols=cases:deaths)
-
-ggplot(data = covid_data_ca, aes(x=date,y=value, col=name)) + geom_line()
-
-
-freq(covid_data$area)
-```
-
-
-
-```{r}
-
-server <- function(input, output) {
-
-        output$cmap <- renderggiraph({
-            
-            g <- ggplot(map.data) +
-                geom_sf() +
-                geom_sf_interactive(aes(tooltip = county,
-                                        data_id = county),
-                                    size = 0.5) +
-                theme(axis.line=element_blank(),
-                      axis.text.x=element_blank(),
-                      axis.text.y=element_blank(),
-                      axis.ticks=element_blank(),
-                      axis.title.x=element_blank(),
-                      axis.title.y=element_blank(),
-                      legend.position="none",
-                      panel.background=element_blank(),
-                      panel.border=element_blank(),
-                      panel.grid.major=element_line(colour = "transparent"),
-                      panel.grid.minor=element_blank(),
-                      plot.background=element_blank())
-            
-            ggiraph(code = print(g),
-                    height_svg = 8,
-                    selection_type = "single",
-                    hover_css = "cursor:pointer;fill:blue;stroke:blue;")
-            
-        })
-        
+# county == "Fresno"
+# 
+# same race bar chart   
+# 
+# trend chartr
+# 
+# map with county rates
+# 
+# add case and death rates to Shiny map?
     
-}
+```
 
 
+## COVID-19 Case, Death, and Test Rates by R/E in Fresno County
+```{r}
+
+# Filter on Fresno county
+covid_re_fresno <- covid_re_data %>%
+  filter(county == "Fresno")
+
+ggplot(data = covid_re_fresno, aes(x = demographic_set_category, y = metric_value_per_100k)) + 
+  geom_bar(stat = 'identity', fill = "darkblue", colour = 'black') +
+  geom_text(aes(label = paste0("N = ", scales::comma(metric_value, accuracy = 1))), vjust = 1, color = 'white') +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  labs(title = "COVID-19 Rates by Race/Ethnicity in Fresno County", 
+       x = "Race/Ethnicity", 
+       y = "Rate per 100k Population") +
+  facet_grid(rows = vars(metric), scales = "free") + # Forms a matrix of panels defined by faceting variable (in this case, by metric variable)
+  theme_bw() + 
+  theme(plot.title = element_text(face = "bold", colour = "darkblue", size = 16), 
+        axis.title = element_text(face = "bold", size = 14),
+        axis.text = element_text(size = 12), 
+        strip.text = element_text(face = "bold", size = 12)) 
 
 ```
+
+
+## Trend of COVID-19 Cases in Fresno County
+```{r}
+
+# Filter on Fresno county
+covid_data_fresno <- covid_data %>%
+  filter(county == "Fresno")
+
+ggplot(data = covid_data_fresno, aes(x = year_month, y = Cases)) +
+  geom_line(size = 1, colour = "darkblue") +
+  labs(title = "Trend of COVID-19 Cases in Fresno County", 
+       x = "Year-Month", 
+       y = "Number of COVID-19 Cases") +
+  theme_bw() + 
+  theme(plot.title = element_text(face = "bold", colour = "darkblue", size = 16), 
+        axis.title = element_text(face = "bold", size = 14),
+        axis.text = element_text(size = 12))
+
+```
+
+## Trend of COVID-19 Deaths in Fresno County
+```{r}
+
+# Filter on fresno county
+covid_data_fresno <- covid_data %>%
+  filter(county == "Fresno")
+
+ggplot(data = covid_data_fresno, aes(x = year_month, y = Deaths)) +
+  geom_line(size = 1, colour = "darkblue") +
+  labs(title = "Trend of COVID-19 Deaths in Fresno County", 
+       x = "Year-Month", 
+       y = "Number of COVID-19 Deaths") +
+  theme_bw() + 
+  theme(plot.title = element_text(face = "bold", colour = "darkblue", size = 16), 
+        axis.title = element_text(face = "bold", size = 14),
+        axis.text = element_text(size = 12))
+
+```
+
+
+## County Map - COVID-19 Case and Death Rates
+```{r}
+
+# Sums up total # of cases and deaths within each county, and calculate case and death rates
+covid_data_county <- covid_data %>%
+  group_by(county) %>%
+  summarise(Cases = sum(Cases), 
+            Deaths = sum(Deaths)) %>%
+  left_join(county_pop, by = "county") %>%
+  mutate(`Case Rate` = 100000 * Cases / population, 
+         `Death Rate` = 100000 * Deaths / population)
+
+# Merge
+map_df <- county_map %>%
+  left_join(covid_data_county, by = "county") 
+
+# Create county map - case rates
+case_rate_map <- ggplot(map_df) +
+  geom_sf(aes(fill = `Case Rate`), size = 0.5, col = "black") +
+  theme_void()
+
+# Create county map - death rates
+death_rate_map <- ggplot(map_df) +
+  geom_sf(aes(fill = `Death Rate`), size = 0.5, col = "black") +
+  theme_void()
+
+# Plot case rate and death rate maps onto 1 figure
+plot_grid(case_rate_map, NULL, death_rate_map, nrow = 1, rel_widths = c(0.45, 0.10, 0.45))
+
+```
+
+<!-- ```{r} -->
+<!-- library(dplyr) -->
+<!-- library(ggplot2) -->
+<!-- library(readr) -->
+
+<!-- covid_re_url <- "https://data.chhs.ca.gov/dataset/f88f9d7f-635d-4334-9dac-4ce773afe4e5/resource/b500dae2-9e58-428e-b125-82c7e9b07abb/download/covid19demographicratecumulative.csv" -->
+
+<!-- covid_re     <- read_csv(covid_re_url) %>%   -->
+<!--                    filter(county == "California", demographic_set == "race_ethnicity") -->
+
+
+<!-- # simplest poss bar.... -->
+
+
+<!-- ggplot(data=covid_re, aes(x=demographic_set_category, y=metric_value_per_100k)      ) + geom_bar(stat = "identity") + -->
+<!--    facet_grid(rows=vars(metric), scales = "free") -->
+
+
+
+<!-- covid_re_2 <- covid_re %>% select(metric, demographic_set_category,   -->
+<!--                                   N = metric_value, -->
+<!--                                   Rate = metric_value_per_100k)  %>% -->
+<!--                pivot_longer(cols=N:Rate) -->
+
+<!-- ggplot(data=covid_re_2, aes(x=demographic_set_category, y=value)      ) + geom_bar(stat = "identity") + -->
+<!--    facet_grid(rows=vars(metric), cols=vars(name), scales = "free") -->
+
+
+
+
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+
+
+
+
+<!-- library(dplyr) -->
+<!-- library(readr) -->
+<!-- library(summarytools) -->
+<!-- library(ggplot2) -->
+<!-- library(tidyr) -->
+
+
+<!-- covid_re_url <- "https://data.chhs.ca.gov/dataset/f88f9d7f-635d-4334-9dac-4ce773afe4e5/resource/b500dae2-9e58-428e-b125-82c7e9b07abb/download/covid19demographicratecumulative.csv" -->
+<!-- covid_re     <- read_csv(covid_re_url) %>%  filter(county == "California", demographic_set == "race_ethnicity") -->
+
+
+<!-- ggplot(data = covid_re, aes(x=demographic_set_category,y=metric_value_per_100k, fill=demographic_set_category)) + geom_bar(stat="identity") + facet_grid(rows=vars(metric), scales="free") -->
+
+
+
+<!-- covidODP <- "https://data.chhs.ca.gov/dataset/f333528b-4d38-4814-bebb-12db1f10f535/resource/046cdd2b-31e5-4d34-9ed3-b48cdbc4be7a/download/covid19cases_test.csv" -->
+
+<!-- covid_data <- read_csv(covidODP) -->
+
+
+
+
+
+
+<!-- covid_data_ca <- covid_data %>%  -->
+<!--                   filter(area == "California") %>% -->
+<!--                   select(population, date, cases, deaths) -->
+
+
+
+
+<!-- ggplot(data = covid_data_ca, aes(x=date,y=cases)) + geom_line() -->
+<!-- ggplot(data = covid_data_ca, aes(x=date,y=cases)) + geom_bar(stat="identity") -->
+
+
+
+<!-- covid_data_ca <- covid_data_ca %>% pivot_longer(cols=cases:deaths) -->
+
+<!-- ggplot(data = covid_data_ca, aes(x=date,y=value, col=name)) + geom_line() -->
+
+
+<!-- freq(covid_data$area) -->
+<!-- ``` -->
+
+
+
+<!-- ```{r} -->
+
+<!-- server <- function(input, output) { -->
+
+<!--         output$cmap <- renderggiraph({ -->
+
+<!--             g <- ggplot(map.data) + -->
+<!--                 geom_sf() + -->
+<!--                 geom_sf_interactive(aes(tooltip = county, -->
+<!--                                         data_id = county), -->
+<!--                                     size = 0.5) + -->
+<!--                 theme(axis.line=element_blank(), -->
+<!--                       axis.text.x=element_blank(), -->
+<!--                       axis.text.y=element_blank(), -->
+<!--                       axis.ticks=element_blank(), -->
+<!--                       axis.title.x=element_blank(), -->
+<!--                       axis.title.y=element_blank(), -->
+<!--                       legend.position="none", -->
+<!--                       panel.background=element_blank(), -->
+<!--                       panel.border=element_blank(), -->
+<!--                       panel.grid.major=element_line(colour = "transparent"), -->
+<!--                       panel.grid.minor=element_blank(), -->
+<!--                       plot.background=element_blank()) -->
+
+<!--             ggiraph(code = print(g), -->
+<!--                     height_svg = 8, -->
+<!--                     selection_type = "single", -->
+<!--                     hover_css = "cursor:pointer;fill:blue;stroke:blue;") -->
+
+<!--         }) -->
+
+
+<!-- } -->
+
+
+
+<!-- ``` -->
 
 
 

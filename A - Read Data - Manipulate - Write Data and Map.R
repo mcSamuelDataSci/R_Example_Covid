@@ -11,9 +11,11 @@ options(tigris_class = "sf") # causes tigris to read files in the "simple featur
 
 #=============================================================================
 
-# Make California county map with simplified shapes
+# Make California county map with simplified shapes 
 county_map <- counties(state = "CA", cb = TRUE) %>%
   select(county = NAME) # geometry automatically saved with sf object
+
+#=============================================================================
 
 # URL for California COVID-19 data on the CHHS Open Data POrtal
 ca_covid_url <- "https://data.chhs.ca.gov/dataset/f333528b-4d38-4814-bebb-12db1f10f535/resource/046cdd2b-31e5-4d34-9ed3-b48cdbc4be7a/download/covid19cases_test.csv"
@@ -21,7 +23,6 @@ ca_covid_url <- "https://data.chhs.ca.gov/dataset/f333528b-4d38-4814-bebb-12db1f
 # Read that Covid data directly from the Open Data Portal
 covid_data0 <- read_csv(ca_covid_url)
 
-  
 # Data manipulation 
 covid_data <-  covid_data0 %>%
       mutate(year_month = floor_date(date, "month")) %>%
@@ -30,7 +31,21 @@ covid_data <-  covid_data0 %>%
       summarize(Cases  = sum(cases),
                 Deaths = sum(deaths))
 
+#=============================================================================
+
+# URL for California COVID-19 race/ethnicity data on the CHHS Open Data Portal
+covid_re_url <- "https://data.chhs.ca.gov/dataset/f88f9d7f-635d-4334-9dac-4ce773afe4e5/resource/b500dae2-9e58-428e-b125-82c7e9b07abb/download/covid19demographicratecumulative.csv"
+
+# Read the Covid data directly from the Open Data Portal. 
+# Filter on race/ethnicity COVID data, and "clean up" the dataset a bit using "tidyverse" approach
+covid_re  <- read_csv(covid_re_url) %>%  
+  filter(demographic_set == "race_ethnicity", 
+         !demographic_set_category %in% c("Other", "Unknown")) # Filter out 'Other' and 'Unknown' race groups 
+
+#=============================================================================
+
 saveRDS(county_map, "county_map.RDS")
 saveRDS(covid_data, "covid_data.RDS")
+saveRDS(covid_re, "covid_re_data.RDS")
 
 
